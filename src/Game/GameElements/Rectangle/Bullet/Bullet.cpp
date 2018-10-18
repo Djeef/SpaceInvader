@@ -7,6 +7,7 @@
 
 #include <Game/GameElements/Rectangle/Bullet/Bullet.hpp>
 #include <Game/GameElements/Unit/Unit.hpp>
+#include <Game/GameElements/Unit/Invader/Invader.hpp>
 
 namespace si {
 
@@ -18,6 +19,10 @@ Bullet::Bullet(BulletDir bulletDir) :
 Bullet::Bullet(BulletDir bulletDir, si::Unit* unit) :
 		Bullet { bulletDir } {
 	_unit = unit;
+}
+
+void Bullet::removeUnit() {
+	_unit = nullptr;
 }
 
 void Bullet::destroy() {
@@ -39,6 +44,13 @@ std::shared_ptr<Unit> Bullet::collision(std::list<std::shared_ptr<Unit>>& units)
 		}
 	}
 	return nullptr;
+}
+
+bool Bullet::isFromInvader() const {
+	if (Invader * i = dynamic_cast<Invader*>(_unit)) {
+		return true;
+	}
+	return false;
 }
 
 void Bullet::update() {

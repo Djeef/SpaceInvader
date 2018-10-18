@@ -50,6 +50,11 @@ public:
 	std::shared_ptr<Bullet> fire();
 
 	/**
+	 * Destroy bullet
+	 */
+	void destroy() const;
+
+	/**
 	 * Get size
 	 *
 	 * @Return

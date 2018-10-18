@@ -22,7 +22,7 @@ std::shared_ptr<Bullet> Unit::fire() {
 
 		_bullet->setPosition(getPosition());
 		if (_bulletDir == BulletDir::DOWN) {
-			_bullet->move(30, 30);
+			_bullet->move((getSize().x / 2.0) - (_bullet->getSize().x / 2.0), getSize().y / 2.0);
 		} else {
 			_bullet->move((getSize().x / 2.0) - (_bullet->getSize().x / 2.0), -getSize().y / 2.0);
 		}
@@ -34,6 +34,12 @@ std::shared_ptr<Bullet> Unit::fire() {
 
 void Unit::removeBullet() {
 	_bullet = nullptr;
+}
+
+void Unit::destroy() const {
+	if (_bullet != nullptr) {
+		_bullet->removeUnit();
+	}
 }
 
 const sf::Vector2f Unit::getSize() {

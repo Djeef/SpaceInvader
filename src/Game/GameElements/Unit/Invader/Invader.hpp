@@ -8,6 +8,9 @@
 #ifndef GAME_DRAWABLE_UNIT_INVADER_INVADER_HPP_
 #define GAME_DRAWABLE_UNIT_INVADER_INVADER_HPP_
 
+#define INVADER_MOVE 25
+#define INVADER_STEP 10
+
 #include <random>
 #include "Game/GameElements/Unit/Unit.hpp"
 #include <Game/Updatable/Updatable.hpp>
@@ -27,9 +30,29 @@ private:
 	std::uniform_int_distribution<float> _distribution { 0, 100 };
 
 	/**
+	 * Start the chrono
+	 */
+	sf::Clock _clock;
+
+	/**
+	 * Number of horizontal movement
+	 */
+	int _nbMove { };
+
+	/**
+	 * Is right direction
+	 */
+	bool _rightDirection { true };
+
+	/**
 	 * Chance to fire
 	 */
-	float _chanceToFire { 0.042 };
+	float _chanceToFire { 0.42 };
+
+	/**
+	 * Speed
+	 */
+	float _speed { 1 };
 
 public:
 
@@ -44,6 +67,11 @@ public:
 	 * @Return if is fire
 	 */
 	bool isFire();
+
+	/**
+	 * Speed up
+	 */
+	void speedUp();
 
 	/**
 	 * Update method implementation

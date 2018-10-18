@@ -19,7 +19,28 @@ Invader::Invader() :
 }
 
 void Invader::update() {
+	sf::Time elapsed = _clock.getElapsedTime();
+	if (elapsed.asSeconds() >= (1.0 * (1.0 / _speed))) {
 
+		_nbMove++;
+		if (_nbMove >= INVADER_STEP) {
+			move(0, INVADER_MOVE);
+			_nbMove = 0;
+			_rightDirection = !_rightDirection;
+		} else {
+			if (_rightDirection) {
+				move(INVADER_MOVE, 0);
+			} else {
+				move(-INVADER_MOVE, 0);
+			}
+		}
+		_clock.restart();
+
+	}
+}
+
+void Invader::speedUp() {
+	_speed += 0.1;
 }
 
 bool Invader::isFire() {

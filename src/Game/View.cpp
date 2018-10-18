@@ -87,6 +87,17 @@ void View::init() {
 	_units.push_back(_player);
 
 	_units.push_back(std::make_shared<Invader>());
+	_units.back()->setPosition(sf::Vector2f(70, 50));
+	_units.push_back(std::make_shared<Invader>());
+	_units.back()->setPosition(sf::Vector2f(170, 50));
+	_units.push_back(std::make_shared<Invader>());
+	_units.back()->setPosition(sf::Vector2f(270, 50));
+	_units.push_back(std::make_shared<Invader>());
+	_units.back()->setPosition(sf::Vector2f(370, 50));
+	_units.push_back(std::make_shared<Invader>());
+	_units.back()->setPosition(sf::Vector2f(470, 50));
+
+	_units.push_back(std::make_shared<Invader>());
 	_units.back()->setPosition(sf::Vector2f(70, 100));
 	_units.push_back(std::make_shared<Invader>());
 	_units.back()->setPosition(sf::Vector2f(170, 100));
@@ -96,10 +107,17 @@ void View::init() {
 	_units.back()->setPosition(sf::Vector2f(370, 100));
 	_units.push_back(std::make_shared<Invader>());
 	_units.back()->setPosition(sf::Vector2f(470, 100));
+
 	_units.push_back(std::make_shared<Invader>());
-	_units.back()->setPosition(sf::Vector2f(570, 100));
+	_units.back()->setPosition(sf::Vector2f(70, 150));
 	_units.push_back(std::make_shared<Invader>());
-	_units.back()->setPosition(sf::Vector2f(670, 100));
+	_units.back()->setPosition(sf::Vector2f(170, 150));
+	_units.push_back(std::make_shared<Invader>());
+	_units.back()->setPosition(sf::Vector2f(270, 150));
+	_units.push_back(std::make_shared<Invader>());
+	_units.back()->setPosition(sf::Vector2f(370, 150));
+	_units.push_back(std::make_shared<Invader>());
+	_units.back()->setPosition(sf::Vector2f(470, 150));
 
 	_units.push_back(std::make_shared<Invader>());
 	_units.back()->setPosition(sf::Vector2f(70, 200));
@@ -111,10 +129,7 @@ void View::init() {
 	_units.back()->setPosition(sf::Vector2f(370, 200));
 	_units.push_back(std::make_shared<Invader>());
 	_units.back()->setPosition(sf::Vector2f(470, 200));
-	_units.push_back(std::make_shared<Invader>());
-	_units.back()->setPosition(sf::Vector2f(570, 200));
-	_units.push_back(std::make_shared<Invader>());
-	_units.back()->setPosition(sf::Vector2f(670, 200));
+
 }
 
 void View::keyPressed(sf::Keyboard::Key code) {
@@ -174,24 +189,42 @@ void View::fire() {
 }
 
 void View::update() {
-	// Player actions
+	/**
+	 * Player actions
+	 */
+
+	// Player is alive
 	if (!_gameOver) {
+		// Right key
 		if (_right) {
 			moveRight();
 		}
+		// Left Key
 		if (_left) {
 			moveLeft();
 		}
+		// Space key
 		if (_fire) {
 			fire();
 		}
 	}
 
-	// Bots actions
+	/**
+	 * Bots actions
+	 */
+
+	// For each invaders
 	for (auto& u : _units) {
+		// Check the type (is Invader ?)
 		if (Invader* i = dynamic_cast<Invader*>(u.get())) {
+
+			// Update invader
 			i->update();
+
+			// Check if the invader want to fire
 			if (i->isFire()) {
+
+				// Get the bullet
 				std::shared_ptr<Bullet> bullet = i->fire();
 				if (bullet != nullptr) {
 					_bullets.push_back(bullet);
@@ -200,25 +233,68 @@ void View::update() {
 		}
 	}
 
-	// Bullets actions
+	/**
+	 *  Bullets actions
+	 */
+
+	bool speedUp = false;
+
+	// First bullet
 	auto (b) = std::begin(_bullets);
+
+	// For each bullets
 	while (b != std::end(_bullets)) {
+		// Update the current bullet
 		(*b)->update();
+		// Check collision
 		std::shared_ptr<Unit> unit = (*b)->collision(_units);
+
 		if (unit != nullptr) {
+			// Collision with unit
+
+			if ((*b)->isFromInvader()) {
+				if (Invader* i = dynamic_cast<Invader*>(unit.get())) {
+					continue;
+				}
+			}
+
+			// Remove reference of bullet in unit
 			(*b)->destroy();
+			// Remove bullet from the list
 			b = _bullets.erase(b);
 
+			// Check the type of the current unit (is Player ?)
 			if (Player* p = dynamic_cast<Player*>(unit.get())) {
 				_gameOver = true;
 			}
+
+			// Remove reference of unit in bullet
+			unit->destroy();
+			// Remove unit from the list
 			_units.remove(unit);
 
+			speedUp = true;
 		} else if ((*b)->getPosition().y < _gameOffset.y || (*b)->getPosition().y > _gameSize.y) {
+			// Border of the screen
+
+			// Remove reference of bullet in unit
 			(*b)->destroy();
+			// Remove bullet from the list
 			b = _bullets.erase(b);
 		} else {
+			// No collisions next bullet
 			++b;
+		}
+	}
+
+	// If one invader is destroyed
+	if (speedUp) {
+		for (auto& u : _units) {
+			// Check the type (is Invader ?)
+			if (Invader* i = dynamic_cast<Invader*>(u.get())) {
+				// Speed up
+				i->speedUp();
+			}
 		}
 	}
 }

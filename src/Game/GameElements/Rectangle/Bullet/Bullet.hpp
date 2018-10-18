@@ -58,6 +58,18 @@ public:
 	~Bullet() = default;
 
 	/**
+	 * Remove unit
+	 */
+	void removeUnit();
+
+	/**
+	 * Is from invader ?
+	 *
+	 * @Param true if the bullet is from invader
+	 */
+	bool isFromInvader() const;
+
+	/**
 	 * Delete bullet
 	 */
 	void destroy();
