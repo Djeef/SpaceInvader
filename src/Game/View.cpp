@@ -23,14 +23,29 @@ View::View(int width, int height, unsigned int fps, sf::String name) {
 	_gameOffset = sf::Vector2f(0.0, 0.0);
 	_gameSize = _windowSize;
 
-	_player = std::make_shared<Player>();
+	if (_font.loadFromFile("data/font/game_over.ttf")) {
+		_gameOverText.setFont(_font);
+		_gameOverText.setString(" Game Over\npress space");
+		_gameOverText.setCharacterSize(110);
+		_gameOverText.setFillColor(sf::Color::Red);
+		_gameOverText.setPosition(_windowSize.x / 2.0 - 110,
+				_windowSize.y / 2.0);
+
+		_winText.setFont(_font);
+		_winText.setString("   You Win\npress space");
+		_winText.setCharacterSize(110);
+		_winText.setFillColor(sf::Color::White);
+		_winText.setPosition(_windowSize.x / 2.0 - 110, _windowSize.y / 2.0);
+	}
 }
 
-View::View(int width, int height, int minX, int maxX, int minY, int maxY, unsigned int fps, sf::String name) :
+View::View(int width, int height, int minX, int maxX, int minY, int maxY,
+		unsigned int fps, sf::String name) :
 		View { width, height, fps, name } {
 	// Set game limits
 	_gameOffset = sf::Vector2f(minX, minY);
-	_gameSize = sf::Vector2f(maxX, maxY) - (_windowSize - sf::Vector2f(maxX, maxY));
+	_gameSize = sf::Vector2f(maxX, maxY)
+			- (_windowSize - sf::Vector2f(maxX, maxY));
 }
 
 void View::startRendering() {
@@ -76,60 +91,33 @@ void View::startRendering() {
 }
 
 void View::init() {
+	// Unit empty
+	_units = std::list<std::shared_ptr<Unit>>();
+
+	// Bullet empty
+	_bullets = std::list<std::shared_ptr<Bullet>>();
+
+	// Init backgound
 	_background.setSize(_windowSize);
 	_background.setColor(sf::Color(100, 100, 100));
-
 	_gameZone.setSize(_gameSize);
 	_gameZone.setPosition(_gameOffset);
 	_gameZone.setColor(sf::Color::Black);
 
-	_player->setPosition((_windowSize.x / 2.0) - (_player->getSize().x / 2.0) - (_gameOffset.x / 2.0), PLAYER_Y_LINE);
+	// Init player
+	_player = std::make_shared<Player>();
+	_player->setPosition(
+			(_windowSize.x / 2.0) - (_player->getSize().x / 2.0)
+					- (_gameOffset.x / 2.0), PLAYER_Y_LINE);
 	_units.push_back(_player);
 
-	_units.push_back(std::make_shared<Invader>());
-	_units.back()->setPosition(sf::Vector2f(70, 50));
-	_units.push_back(std::make_shared<Invader>());
-	_units.back()->setPosition(sf::Vector2f(170, 50));
-	_units.push_back(std::make_shared<Invader>());
-	_units.back()->setPosition(sf::Vector2f(270, 50));
-	_units.push_back(std::make_shared<Invader>());
-	_units.back()->setPosition(sf::Vector2f(370, 50));
-	_units.push_back(std::make_shared<Invader>());
-	_units.back()->setPosition(sf::Vector2f(470, 50));
-
-	_units.push_back(std::make_shared<Invader>());
-	_units.back()->setPosition(sf::Vector2f(70, 100));
-	_units.push_back(std::make_shared<Invader>());
-	_units.back()->setPosition(sf::Vector2f(170, 100));
-	_units.push_back(std::make_shared<Invader>());
-	_units.back()->setPosition(sf::Vector2f(270, 100));
-	_units.push_back(std::make_shared<Invader>());
-	_units.back()->setPosition(sf::Vector2f(370, 100));
-	_units.push_back(std::make_shared<Invader>());
-	_units.back()->setPosition(sf::Vector2f(470, 100));
-
-	_units.push_back(std::make_shared<Invader>());
-	_units.back()->setPosition(sf::Vector2f(70, 150));
-	_units.push_back(std::make_shared<Invader>());
-	_units.back()->setPosition(sf::Vector2f(170, 150));
-	_units.push_back(std::make_shared<Invader>());
-	_units.back()->setPosition(sf::Vector2f(270, 150));
-	_units.push_back(std::make_shared<Invader>());
-	_units.back()->setPosition(sf::Vector2f(370, 150));
-	_units.push_back(std::make_shared<Invader>());
-	_units.back()->setPosition(sf::Vector2f(470, 150));
-
-	_units.push_back(std::make_shared<Invader>());
-	_units.back()->setPosition(sf::Vector2f(70, 200));
-	_units.push_back(std::make_shared<Invader>());
-	_units.back()->setPosition(sf::Vector2f(170, 200));
-	_units.push_back(std::make_shared<Invader>());
-	_units.back()->setPosition(sf::Vector2f(270, 200));
-	_units.push_back(std::make_shared<Invader>());
-	_units.back()->setPosition(sf::Vector2f(370, 200));
-	_units.push_back(std::make_shared<Invader>());
-	_units.back()->setPosition(sf::Vector2f(470, 200));
-
+	// Init invaders
+	for (int i = 0; i < 5; ++i) {
+		for (int j = 0; j < 5; ++j) {
+			_units.push_back(std::make_shared<Invader>());
+			_units.back()->setPosition(sf::Vector2f(100 * j + 25, 50 * i + 25));
+		}
+	}
 }
 
 void View::keyPressed(sf::Keyboard::Key code) {
@@ -155,9 +143,6 @@ void View::keyReleased(sf::Keyboard::Key code) {
 		break;
 	case sf::Keyboard::Left:
 		_left = false;
-		break;
-	case sf::Keyboard::Space:
-		_fire = false;
 		break;
 	default:
 		break;
@@ -194,19 +179,32 @@ void View::update() {
 	 */
 
 	// Player is alive
-	if (!_gameOver) {
-		// Right key
-		if (_right) {
-			moveRight();
-		}
-		// Left Key
-		if (_left) {
-			moveLeft();
-		}
-		// Space key
-		if (_fire) {
+	// Space key
+	if (_fire) {
+		_fire = false;
+		if (_gameOver) {
+			init();
+			_gameOver = false;
+			return;
+		} else if (_win) {
+			init();
+			_win = false;
+			return;
+		} else {
 			fire();
 		}
+	}
+
+	if (_gameOver || _win) {
+		return;
+	}
+	// Right key
+	if (_right) {
+		moveRight();
+	}
+	// Left Key
+	if (_left) {
+		moveLeft();
 	}
 
 	/**
@@ -229,6 +227,11 @@ void View::update() {
 				if (bullet != nullptr) {
 					_bullets.push_back(bullet);
 				}
+			}
+
+			if(i->getPosition().y == _player->getPosition().y) {
+				_gameOver = true;
+				return;
 			}
 		}
 	}
@@ -253,7 +256,7 @@ void View::update() {
 			// Collision with unit
 
 			if ((*b)->isFromInvader()) {
-				if (Invader* i = dynamic_cast<Invader*>(unit.get())) {
+				if (dynamic_cast<Invader*>(unit.get())) {
 					continue;
 				}
 			}
@@ -264,8 +267,9 @@ void View::update() {
 			b = _bullets.erase(b);
 
 			// Check the type of the current unit (is Player ?)
-			if (Player* p = dynamic_cast<Player*>(unit.get())) {
+			if (dynamic_cast<Player*>(unit.get())) {
 				_gameOver = true;
+				return;
 			}
 
 			// Remove reference of unit in bullet
@@ -274,7 +278,14 @@ void View::update() {
 			_units.remove(unit);
 
 			speedUp = true;
-		} else if ((*b)->getPosition().y < _gameOffset.y || (*b)->getPosition().y > _gameSize.y) {
+		} else if ((*b)->getPosition().y < _gameOffset.y) {
+			// Border of the screen
+
+			// Remove reference of bullet in unit
+			(*b)->destroy();
+			// Remove bullet from the list
+			b = _bullets.erase(b);
+		} else if ((*b)->getPosition().y > _gameSize.y) {
 			// Border of the screen
 
 			// Remove reference of bullet in unit
@@ -284,6 +295,10 @@ void View::update() {
 		} else {
 			// No collisions next bullet
 			++b;
+		}
+
+		if (_units.size() == 1 && dynamic_cast<Player*>(_units.front().get())) {
+			_win = true;
 		}
 	}
 
@@ -303,14 +318,28 @@ void View::rendering() {
 	// Clear window
 	_window.clear();
 
+	// Draw background
 	_background.draw(_window);
 	_gameZone.draw(_window);
+
+	// Draw units
 	for (auto& u : _units) {
 		u->draw(_window);
 	}
 
+	// Draw bullets
 	for (auto& b : _bullets) {
 		b->draw(_window);
+	}
+
+	// Draw Win
+	if (_win) {
+		_window.draw(_winText);
+	}
+
+	// Draw Game Over
+	if (_gameOver) {
+		_window.draw(_gameOverText);
 	}
 
 	// Display

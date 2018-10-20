@@ -9,7 +9,7 @@
 #define GAME_DRAWABLE_UNIT_INVADER_INVADER_HPP_
 
 #define INVADER_MOVE 25
-#define INVADER_STEP 10
+#define INVADER_STEP 14
 
 #include <random>
 #include "Game/GameElements/Unit/Unit.hpp"
@@ -27,7 +27,7 @@ private:
 	/**
 	 * Uniform probability
 	 */
-	std::uniform_int_distribution<float> _distribution { 0, 100 };
+	std::uniform_int_distribution<int> _distribution { 0, 100 };
 
 	/**
 	 * Start the chrono

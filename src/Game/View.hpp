@@ -69,9 +69,29 @@ private:
 	sf::Vector2f _gameSize;
 
 	/**
+	 * Game over text
+	 */
+	sf::Text _gameOverText;
+
+	/**
+	 * Win text
+	 */
+	sf::Text _winText;
+
+	/**
+	 * Game over font
+	 */
+	sf::Font _font;
+
+	/**
 	 * Game over
 	 */
 	bool _gameOver = false;
+
+	/**
+	 * Win
+	 */
+	bool _win = false;
 
 	/**
 	 * Key values: right
@@ -123,7 +143,8 @@ public:
 	 * @Param name
 	 * 		the window name
 	 */
-	View(int width, int height, int minX, int maxX, int minY, int maxY, unsigned int fps, sf::String name);
+	View(int width, int height, int minX, int maxX, int minY, int maxY,
+			unsigned int fps, sf::String name);
 
 	/**
 	 * Vuew destructor

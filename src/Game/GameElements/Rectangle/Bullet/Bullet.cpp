@@ -47,7 +47,7 @@ std::shared_ptr<Unit> Bullet::collision(std::list<std::shared_ptr<Unit>>& units)
 }
 
 bool Bullet::isFromInvader() const {
-	if (Invader * i = dynamic_cast<Invader*>(_unit)) {
+	if (dynamic_cast<Invader*>(_unit)) {
 		return true;
 	}
 	return false;
